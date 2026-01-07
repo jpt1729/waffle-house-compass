@@ -1,10 +1,26 @@
-"use client"
+"use client";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion } from "motion/react"
+import { motion } from "motion/react";
 
 export default function CompassArrow({ angle }) {
+  const [rotation, setRotation] = useState(angle);
+
+  useEffect(() => {
+    setRotation((prevRotation) => {
+      const currentVisualAngle = ((prevRotation % 360) + 360) % 360;
+
+      let delta = angle - currentVisualAngle;
+
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+
+      return prevRotation + delta;
+    });
+  }, [angle]);
   return (
-    <motion.div animate={{ rotateZ: angle }} className="origin-bottom">
+    <motion.div animate={{ rotateZ: rotation }} className="origin-bottom">
       <Image
         src="/arrow.svg"
         alt={"Arrow pointing in the direction of waffle house"}
