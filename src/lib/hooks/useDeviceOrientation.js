@@ -60,6 +60,7 @@ export const useDeviceOrientation = () => {
 
   // FIX 2: Add handleOrientation to the dependency array
   useEffect(() => {
+    requestAccessAsync()
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
     };

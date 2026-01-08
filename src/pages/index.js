@@ -1,5 +1,7 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
+
+import { useState, useEffect } from "react";
+import { Geist_Mono } from "next/font/google";
 
 import CompassArrow from "@/components/compassArrow";
 
@@ -17,12 +19,12 @@ export default function Home() {
   const { heading, requestAccess } = useDeviceOrientation();
   const { location } = useLocation();
   const { waffleHouse } = useWaffleHouse();
-  let arrowRotation = 12
+  const [access, setAccess] = useState(false);
+
+  let arrowRotation = 12;
   if (waffleHouse) {
     const waffleHouseLat = waffleHouse.latitude;
     const waffleHouseLong = waffleHouse.longitude;
-
-    console.log(waffleHouse);
 
     const bearing = getBearing(
       location.lat,
@@ -33,14 +35,42 @@ export default function Home() {
 
     arrowRotation = Math.abs((bearing - heading + 360) % 360);
   }
+  useEffect(() => {
+    console.log("rerender");
+  });
+  console.log(waffleHouse);
   return (
-    <div
-      className={`${geistMono.className} flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark :bg-black`}
-    >
-      <button onClick={requestAccess} style={{ marginBottom: 20 }}>
-        Enable Compass
-      </button>
-      <CompassArrow angle={arrowRotation} />
+    <div className="min-h-dvh dark:bg-[#171717] bg-zinc-50">
+      <div
+        className={`${geistMono.className} flex flex-col items-center justify-center  font-sans  p-5 h-[calc(80vh)] m-auto`}
+      >
+        <div>
+          <h1 className="font-bold text-xl">Waffle House Compass</h1>
+        </div>
+        <main className="flex justify-center items-center grow">
+          <CompassArrow angle={arrowRotation} />
+        </main>
+        <div>
+          {waffleHouse ? (
+            <p>
+              Compass Connected to{" "}
+              <Link href={waffleHouse.websiteURL} className="underline italic">
+                {waffleHouse.businessName}
+              </Link>
+            </p>
+          ) : (
+            <p>Locating nearest Waffle House</p>
+          )}
+          <p>
+            <Link
+              href="https://github.com/jpt1729/waffle-house-compass"
+              className="underline italic"
+            >
+              github
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
