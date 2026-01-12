@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 
 import useSWR from "swr";
 
@@ -12,6 +12,8 @@ const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 const WaffleHouseContext = createContext();
 
+const lastCalculatedTime = useRef(0);
+
 export function WaffleHouseProvider({ children }) {
   const { data, error, isLoading } = useSWR(
     "/data/waffle_house_data.json",
@@ -23,7 +25,17 @@ export function WaffleHouseProvider({ children }) {
   const { location, loading } = useLocation();
 
   useEffect(() => {
-    if (location && waffleHouseLocations && !isLoading) {
+    const now = Date.now();
+    const timeElapsed = now - lastCalculatedTime.current;
+    const ONE_MINUTE = 60000; // 60 seconds in milliseconds
+
+    // 2. Add timeElapsed check to your condition
+    if (
+      location &&
+      waffleHouseLocations &&
+      !isLoading &&
+      timeElapsed >= ONE_MINUTE
+    ) {
       console.log("Recalculating nearest Waffle House...");
 
       const { lat, long } = location;
@@ -34,6 +46,9 @@ export function WaffleHouseProvider({ children }) {
       );
 
       setWaffleHouse(closest);
+
+      // 3. Update the timestamp after a successful run
+      lastCalculatedTime.current = now;
     }
   }, [location, waffleHouseLocations, isLoading]);
 
