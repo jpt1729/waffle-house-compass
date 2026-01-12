@@ -12,8 +12,6 @@ const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 const WaffleHouseContext = createContext();
 
-const lastCalculatedTime = useRef(0);
-
 export function WaffleHouseProvider({ children }) {
   const { data, error, isLoading } = useSWR(
     "/data/waffle_house_data.json",
@@ -23,6 +21,8 @@ export function WaffleHouseProvider({ children }) {
 
   const [waffleHouse, setWaffleHouse] = useState();
   const { location, loading } = useLocation();
+
+  const lastCalculatedTime = useRef(0);
 
   useEffect(() => {
     const now = Date.now();
