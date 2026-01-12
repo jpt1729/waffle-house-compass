@@ -8,15 +8,12 @@ const LocationContext = createContext(null);
 
 export const LocationProvider = ({ children }) => {
   const [location, setLocation] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // 1. Check if browser supports Geolocation
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser');
-      setLoading(false);
-      return;
+      throw new Error('Geolocation not supported')
     }
 
     // 2. Start "Watching" the position
@@ -28,12 +25,13 @@ export const LocationProvider = ({ children }) => {
           lat: position.coords.latitude,
           long: position.coords.longitude,
         });
+        console.log('got location')
         setLoading(false);
       },
       (err) => {
         // Error: Update error state
-        setError(err.message);
         setLoading(false);
+        throw err
       },
       {
         enableHighAccuracy: true, // Uses GPS (more battery, better accuracy)
@@ -51,7 +49,7 @@ export const LocationProvider = ({ children }) => {
   }, []);
 
   return (
-    <LocationContext.Provider value={{ location, error, loading }}>
+    <LocationContext.Provider value={{ location, loading }}>
       {children}
     </LocationContext.Provider>
   );

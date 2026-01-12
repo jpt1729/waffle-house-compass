@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 
-export default function CompassArrow({ angle }) {
+export default function CompassArrow({ angle, onClick, ...props }) {
   const [rotation, setRotation] = useState(angle);
+  const [deviceOrientation, setDeviceOrientation] = useState(false);
 
   useEffect(() => {
     setRotation((prevRotation) => {
@@ -20,7 +21,14 @@ export default function CompassArrow({ angle }) {
     });
   }, [angle]);
   return (
-    <motion.div animate={{ rotateZ: rotation }} className="origin-bottom">
+    <motion.div
+      animate={{ rotateZ: rotation }}
+      className="origin-bottom"
+      onClick={() => {
+        setDeviceOrientation(onClick());
+      }}
+      {...props}
+    >
       <Image
         src="/arrow-dark.svg"
         alt={"Arrow pointing in the direction of waffle house"}

@@ -48,7 +48,7 @@ export default function Home() {
           <h1 className="font-bold text-xl">Waffle House Compass</h1>
         </div>
         <main className="flex justify-center items-center grow">
-          <CompassArrow angle={arrowRotation} />
+          <CompassArrow angle={arrowRotation} onClick = {() => {requestAccess()}}/>
         </main>
         <div>
           {waffleHouse ? (
@@ -69,6 +69,7 @@ export default function Home() {
               github
             </Link>
           </p>
+          <p>Tip: Tap the arrow to activate compass</p>
         </div>
       </div>
     </div>

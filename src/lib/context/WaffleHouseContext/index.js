@@ -1,33 +1,41 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 
+import useSWR from "swr";
+
 import { useLocation } from "../LocationContext";
 import findNearestOpenWaffleHouse, {
   getBearing,
 } from "./findNearestOpenWaffleHouse";
 
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
+
 const WaffleHouseContext = createContext();
 
-export function WaffleHouseProvider({ children, waffleHouseLocations }) {
+export function WaffleHouseProvider({ children }) {
+  const { data, error, isLoading } = useSWR(
+    "/data/waffle_house_data.json",
+    fetcher
+  );
+  const waffleHouseLocations = data;
+
   const [waffleHouse, setWaffleHouse] = useState();
   const { location, loading } = useLocation();
 
   useEffect(() => {
-    setInterval(() => {
-      if (!loading) {
-        const { lat, long } = location;
-        let closestWaffleHouse = findNearestOpenWaffleHouse(
-          lat,
-          long,
-          waffleHouseLocations
-        );
-        
-        if (waffleHouse != closestWaffleHouse) {
-          setWaffleHouse(closestWaffleHouse);
-        }
-      }
-    }, 2500);
-  }, []);
+    if (location && waffleHouseLocations && !isLoading) {
+      console.log("Recalculating nearest Waffle House...");
+
+      const { lat, long } = location;
+      const closest = findNearestOpenWaffleHouse(
+        lat,
+        long,
+        waffleHouseLocations
+      );
+
+      setWaffleHouse(closest);
+    }
+  }, [location, waffleHouseLocations, isLoading]);
 
   return (
     <WaffleHouseContext.Provider value={{ waffleHouse }}>

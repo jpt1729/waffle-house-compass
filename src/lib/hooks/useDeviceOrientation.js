@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from 'react';
 
 export const useDeviceOrientation = () => {
   const [heading, setHeading] = useState(0); 
-  const [error, setError] = useState(null);
 
   // FIX 1: Wrap in useCallback so the function reference never changes.
   // This ensures addEventListener and removeEventListener see the exact same function.
@@ -44,12 +43,10 @@ export const useDeviceOrientation = () => {
           window.addEventListener('deviceorientation', handleOrientation, true);
           return true;
         } else {
-          setError('Permission denied');
-          return false;
+          throw new Error('Permission denied');
         }
       } catch (err) {
-        setError(err.message);
-        return false;
+        throw new Error(err.message);
       }
     } else {
       // Non-iOS 13+ devices
@@ -60,11 +57,10 @@ export const useDeviceOrientation = () => {
 
   // FIX 2: Add handleOrientation to the dependency array
   useEffect(() => {
-    requestAccessAsync()
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
     };
   }, [handleOrientation]);
 
-  return { heading, error, requestAccess: requestAccessAsync };
+  return { heading, requestAccess: requestAccessAsync };
 };
